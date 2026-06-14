@@ -4,23 +4,24 @@ import { connectDB, disconnectDB } from "./config/db.js";
 
 // Import Routes
 import categoryRoutes from "./routes/categoryRoutes.js";
-
+import taskRoutes from "./routes/taskRoutes.js"; // 1. Added Task Routes import
 
 config();
 connectDB();
 
 const app = express();
 
-// Body parsing middlwares
+// Body parsing middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use("/categories", categoryRoutes);
+app.use("/tasks", taskRoutes); // 2. Mounted Task Routes to '/tasks'
 
 
 const server = app.listen(process.env.PORT || 5001, "0.0.0.0", () => {
-  console.log(`Server running on PORT ${process.env.PORT}`);
+  console.log(`Server running on PORT ${process.env.PORT || 5001}`);
 });
 
 // Handle unhandled promise rejections (e.g., database connection errors)
