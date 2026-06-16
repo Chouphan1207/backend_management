@@ -3,6 +3,7 @@ import { config } from "dotenv";
 import { connectDB, disconnectDB } from "./config/db.js";
 
 // Import Routes
+import authRoutes from "./routes/authRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js"; // 1. Added Task Routes import
 
@@ -17,7 +18,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use("/categories", categoryRoutes);
-app.use("/tasks", taskRoutes); // 2. Mounted Task Routes to '/tasks'
+app.use("/tasks", taskRoutes);
+app.use("/auth", authRoutes);
+
 
 
 const server = app.listen(process.env.PORT || 5001, "0.0.0.0", () => {
