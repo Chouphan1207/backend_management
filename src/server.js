@@ -22,7 +22,6 @@ app.use("/tasks", taskRoutes);
 app.use("/auth", authRoutes);
 
 
-
 const server = app.listen(process.env.PORT || 5001, "0.0.0.0", () => {
   console.log(`Server running on PORT ${process.env.PORT || 5001}`);
 });

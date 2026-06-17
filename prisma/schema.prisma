@@ -8,17 +8,14 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-    categories Category[]
-    tasks      Task[]
+  id         String     @id @default(uuid())
+  name       String
+  email      String     @unique
+  password   String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  categories Category[]
+  tasks      Task[]
 }
 
 model Category {
@@ -28,37 +25,31 @@ model Category {
   color     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Ownership: Tracks which category belongs to which user
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Relation to tasks
   tasks     Task[]
 
-  // Ensures a user cannot create duplicate categories with the exact same title
   @@unique([userId, title])
   @@index([userId])
+}
+
+model Task {
+  id         String     @id @default(uuid())
+  title      String
+  status     TaskStatus @default(TODO)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  userId     String
+  categoryId String?
+  category   Category?  @relation(fields: [categoryId], references: [id])
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([categoryId])
 }
 
 enum TaskStatus {
   TODO
   IN_PROGRESS
   DONE
-}
-
-model Task {
-  id          String     @id @default(uuid())
-  title       String
-  // 2. Replace boolean with the new Status enum, defaulting to TODO
-  status      TaskStatus @default(TODO)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  userId      String
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categoryId  String?
-  category    Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([categoryId])
 }

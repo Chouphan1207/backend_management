@@ -1,41 +1,39 @@
+import 'dotenv/config'; // Ensures environment variables are parsed before the pool initializes
+
 import pkgClient from '@prisma/client';
-import { neon, neonConfig } from '@neondatabase/serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import path from 'path';
-import { config } from 'dotenv';
 import ws from 'ws';
 
 const { PrismaClient } = pkgClient;
 
-// Ensure environment variables are loaded from the root directory
-config({ path: path.resolve(process.cwd(), '.env') });
-
-// Configure Neon to use the standard web socket constructor for Node.js environments
+// Configure Neon to use WebSockets properly over standard Node network hooks
 neonConfig.webSocketConstructor = ws;
 
-// Create the native Neon database connection connection
-const sql = neon(process.env.DATABASE_URL);
-const adapter = new PrismaNeon(sql);
+// 1. Initialize the WebSocket driver connection pool
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaNeon(pool);
 
-// Instantiate the Prisma Client passing the required adapter
+// 2. Instantiate the Prisma Client passing the required adapter property
 const prisma = new PrismaClient({
-  adapter: adapter,
+  adapter: adapter, // ✅ This completely satisfies the Prisma 7 engine requirement!
   log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
 });
 
+// Helper validation connect verification check
 const connectDB = async () => {
   try {
-    await prisma.$connect();
-    console.log("✅ Database connected via Prisma Neon Adapter");
+    // Under custom driver adapters, we execute a quick raw query check to test the pool
+    await prisma.$queryRaw`SELECT 1`;
+    console.log("🚀 DB Connected via Prisma 7 + Neon Adapter");
   } catch (error) {
-    console.error("❌ Database connection error:", error.message);
+    console.error(`❌ Database connection error: ${error.message}`);
     process.exit(1);
   }
 };
 
 const disconnectDB = async () => {
   await prisma.$disconnect();
-  console.log("👋 Database disconnected safely.");
 };
 
 export { prisma, connectDB, disconnectDB };
