@@ -18,7 +18,7 @@ const prisma = new PrismaClient({
 export const connectDB = async () => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    console.log("🚀 DB Connected via Prisma 7 + Neon Adapter");
+    console.log("DB Connected");
   } catch (error) {
     console.error(`❌ Database connection error: ${error.message}`);
     process.exit(1);
