@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { PrismaClient } from "../generated/index.js";
-import { Pool, neonConfig } from '@neondatabase/serverless';
+import { PrismaClient } from "../generated/prisma/index.js";
+import { neonConfig } from '@neondatabase/serverless';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import ws from 'ws';
 
