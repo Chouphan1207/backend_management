@@ -1,5 +1,6 @@
 import { prisma } from '../config/db.js';
 import bcrypt from 'bcryptjs';
+import { generateToken } from '../utils/generateToken.js';
 
 
 const register = async (req, res) => {
@@ -29,6 +30,9 @@ const register = async (req, res) => {
     },
   });
 
+  // Generate token
+      const token = generateToken(user.id);
+
   return res.status(201).json({
     status: 'success',
     data: {
@@ -36,6 +40,7 @@ const register = async (req, res) => {
       name: user.name,
       email: user.email,
     },
+    token: token,
   });
 };
 
@@ -57,10 +62,8 @@ const login = async (req, res) => {
     return res.status(401).json({ error: 'Invalid password' });
   }
 
-//Generate token
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
-  });
+  // Generate token
+      const token = generateToken(user.id, res);
 
   return res.status(200).json({
     status: 'success',
@@ -69,7 +72,21 @@ const login = async (req, res) => {
       name: user.name,
       email: user.email,
     },
+    token: token,
   });
 };
 
-export { register, login};
+const logout = async (req, res) => {
+  res.cookie('jwt', '', {
+    expires: new Date(0),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+  });
+  return res.status(200).json({
+    status: 'success',
+    message: 'Logged out successfully',
+  });
+};
+
+export { register, login, logout };
