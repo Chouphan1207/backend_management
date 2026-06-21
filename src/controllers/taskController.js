@@ -1,7 +1,8 @@
-import {prisma} from '../config/db.js';
+import { prisma } from '../config/db.js';
 
+// GET - Fetch tasks for the logged-in user
 export const getTasks = async (req, res) => {
-  const userId = "mock-user-uuid";
+  const userId = req.user.id; // Matches req.user extension from middleware
   const { categoryId } = req.query;
 
   try {
@@ -22,7 +23,7 @@ export const getTasks = async (req, res) => {
 // POST - Create a task
 export const createTask = async (req, res) => {
   const { title, categoryId } = req.body;
-  const userId = "mock-user-uuid";
+  const userId = req.user.id;
 
   if (!title) return res.status(400).json({ error: 'Task title is required' });
 
@@ -31,7 +32,7 @@ export const createTask = async (req, res) => {
       data: {
         title,
         userId,
-        categoryId: categoryId || null, // Associates task with category, or sets null if uncategorized
+        categoryId: categoryId || null,
       },
     });
     return res.status(201).json(newTask);
@@ -41,10 +42,10 @@ export const createTask = async (req, res) => {
   }
 };
 
-// PATCH - Update task status (TODO -> IN_PROGRESS -> DONE)
+// PATCH - Update task status
 export const updateTaskStatus = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body; // Expects 'TODO', 'IN_PROGRESS', or 'DONE'
+  const { status } = req.body;
 
   const validStatuses = ['TODO', 'IN_PROGRESS', 'DONE'];
   if (!validStatuses.includes(status)) {
